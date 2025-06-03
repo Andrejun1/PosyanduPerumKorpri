@@ -221,3 +221,56 @@
                 }
             }
         }
+
+        function carousel() {
+            return {
+                currentSlide: 0,
+                totalSlides: 4,
+                autoSlideInterval: null,
+
+                init() {
+                    this.startAutoSlide();
+                },
+
+                nextSlide() {
+                    this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+                    this.resetAutoSlide();
+                },
+
+                prevSlide() {
+                    this.currentSlide = this.currentSlide === 0 ? this.totalSlides - 1 : this.currentSlide - 1;
+                    this.resetAutoSlide();
+                },
+
+                startAutoSlide() {
+                    this.autoSlideInterval = setInterval(() => {
+                        this.nextSlide();
+                    }, 5000);
+                },
+
+                resetAutoSlide() {
+                    clearInterval(this.autoSlideInterval);
+                    this.startAutoSlide();
+                }
+            }
+        }
+
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+                    
+                    if (targetSection) {
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
