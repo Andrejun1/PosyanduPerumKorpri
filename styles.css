@@ -62,7 +62,7 @@ nav {
 }
 
 .nav-links {
-  display: flex; /* Default to flex for larger screens */
+  display: flex; /* Default to flex for larger screens, adjusted by media query */
   list-style: none;
   gap: 2rem;
   transition: all 0.3s ease;
@@ -131,7 +131,7 @@ nav {
   transform: rotate(45deg) translate(-5px, -6px);
 }
 
-/* Mobile Menu Overlay */
+/* Mobile Menu Overlay (If you are using it) */
 .mobile-menu-overlay {
   position: fixed;
   top: 0;
@@ -698,7 +698,7 @@ nav {
   box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
 }
 
-/* --- Media Queries for Responsive Navigation --- */
+/* --- Media Queries for Responsive Navigation and Layout --- */
 
 /* Larger screens (desktop and larger tablets) */
 @media (min-width: 769px) {
@@ -707,7 +707,7 @@ nav {
   }
 
   .nav-links {
-    display: flex !important; /* Ensure nav links are always visible */
+    display: flex !important; /* Ensure nav links are always visible, overriding Alpine's x-show */
     position: static; /* Remove absolute positioning */
     width: auto;
     background-color: transparent;
@@ -748,7 +748,6 @@ nav {
     padding: 1rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     z-index: 999; /* Ensure it's above other content but below the header */
-    /* Alpine.js handles display: none/block via x-show */
   }
 
   .nav-links li {
@@ -758,5 +757,38 @@ nav {
 
   .nav-links a {
     padding: 0.8rem 1rem; /* Adjust padding for easier tapping */
+  }
+
+  /* Perbaikan untuk Jadwal Kegiatan agar tidak miring */
+  .schedule-grid {
+    display: flex; /* Mengubah dari grid menjadi flexbox */
+    flex-direction: column; /* Menumpuk kartu secara vertikal */
+    gap: 1.5rem; /* Sesuaikan jarak antar kartu */
+  }
+
+  .schedule-card {
+    width: 100%; /* Pastikan kartu mengambil lebar penuh */
+    text-align: left; /* Pastikan teks di dalam kartu rata kiri */
+    padding: 1.2rem; /* Sesuaikan padding agar tidak terlalu mepet */
+  }
+
+  .schedule-date,
+  .schedule-time,
+  .schedule-location {
+    justify-content: flex-start; /* Pastikan elemen-elemen ini rata kiri */
+  }
+
+  .schedule-activity {
+    text-align: left; /* Pastikan aktivitas teks juga rata kiri */
+  }
+
+  /* Jika Anda punya deskripsi jadwal, pastikan juga rata kiri */
+  .schedule-card div[x-show="schedule.description"] {
+      text-align: left;
+  }
+
+  /* Sesuaikan ukuran font untuk section-title di mobile */
+  .section-title {
+    font-size: 1.6rem;
   }
 }
