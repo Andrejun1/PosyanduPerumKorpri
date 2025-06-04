@@ -62,7 +62,7 @@ nav {
 }
 
 .nav-links {
-  display: flex;
+  display: flex; /* Default to flex for larger screens */
   list-style: none;
   gap: 2rem;
   transition: all 0.3s ease;
@@ -103,7 +103,7 @@ nav {
 
 /* Hamburger Menu Styles */
 .hamburger {
-  display: none;
+  display: none; /* Hidden by default for larger screens */
   flex-direction: column;
   cursor: pointer;
   padding: 0.5rem;
@@ -698,7 +698,29 @@ nav {
   box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
 }
 
-/* Mobile Responsive Styles */
+/* --- Media Queries for Responsive Navigation --- */
+
+/* Larger screens (desktop and larger tablets) */
+@media (min-width: 769px) {
+  .hamburger {
+    display: none; /* Hide hamburger on larger screens */
+  }
+
+  .nav-links {
+    display: flex !important; /* Ensure nav links are always visible */
+    position: static; /* Remove absolute positioning */
+    width: auto;
+    background-color: transparent;
+    padding: 0;
+    flex-direction: row; /* Arrange links horizontally */
+  }
+
+  .nav-links li {
+    margin-left: 20px; /* Add space between links */
+  }
+}
+
+/* Smaller screens (mobile and smaller tablets) */
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 2rem;
@@ -713,33 +735,28 @@ nav {
   }
 
   .hamburger {
-    display: flex;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #667eea;
+    display: flex; /* Show hamburger on smaller screens */
   }
 
-  @media (max-width: 768px) {
-    .hamburger {
-      display: block;
-    }
+  .nav-links {
+    flex-direction: column;
+    position: absolute;
+    top: 100%; /* Position below the header */
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 999; /* Ensure it's above other content but below the header */
+    /* Alpine.js handles display: none/block via x-show */
+  }
 
-    .nav-links {
-      flex-direction: column;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background: white;
-      padding: 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
-    }
+  .nav-links li {
+    text-align: center;
+    margin: 10px 0; /* Add vertical spacing for mobile links */
+  }
 
-    .nav-links.hidden {
-      display: none !important;
-    }
+  .nav-links a {
+    padding: 0.8rem 1rem; /* Adjust padding for easier tapping */
   }
 }
