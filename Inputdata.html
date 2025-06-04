@@ -1,698 +1,502 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Data Posyandu</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <script>
-    window.jsPDF = window.jspdf.jsPDF;
-  </script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Posyandu</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js"
+      defer
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script>
+      window.jsPDF = window.jspdf.jsPDF;
+    </script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body x-data="posyanduApp()">
+    <header>
+      <nav
+        class="container max-w-7xl mx-auto px-4 flex items-center justify-between py-4"
+      >
+        <div class="logo flex items-center text-lg font-bold">
+          <i class="fas fa-heartbeat"></i>
+          Posyandu Perum Korpri Sambiroto
+        </div>
+        <button
+          class="hamburger block md:hidden text-2xl"
+          @click="menuOpen = !menuOpen"
+        >
+          <i class="fas fa-bars"></i>
+        </button>
+        <ul
+          class="nav-links flex flex-col md:flex-row absolute md:static top-16 left-0 w-full md:w-auto bg-white md:bg-transparent shadow-md md:shadow-none z-10"
+          x-show="menuOpen"
+          x-transition
+        >
+          <li class="py-2 px-4 md:py-0 md:px-3">
+            <a href="index.html" class="text-gray-700 hover:text-blue-600"
+              >Beranda</a
+            >
+          </li>
+          <li class="py-2 px-4 md:py-0 md:px-3">
+            <a
+              href="index.html#jadwal"
+              class="text-gray-700 hover:text-blue-600"
+              >Jadwal</a
+            >
+          </li>
+          <li class="py-2 px-4 md:py-0 md:px-3">
+            <a
+              href="index.html#tentang"
+              class="text-gray-700 hover:text-blue-600"
+              >Tentang</a
+            >
+          </li>
+          <li class="py-2 px-4 md:py-0 md:px-3">
+            <a href="#" class="text-gray-700 hover:text-blue-600">Input Data</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <div class="max-w-10xl mx-auto bg-white p-6">
+      <h1 class="text-2xl font-bold mb-10 text-center">
+        Form Posyandu Bantuan Pencatatan
+      </h1>
+
+      <!-- Statistik -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div
+          class="bg-blue-100 p-4 rounded-lg text-center border-l-4 border-blue-500"
+        >
+          <div class="text-2xl font-bold text-blue-700" id="countBalita">0</div>
+          <div class="text-sm text-blue-600 font-medium">Balita</div>
+        </div>
+        <div
+          class="bg-green-100 p-4 rounded-lg text-center border-l-4 border-green-500"
+        >
+          <div class="text-2xl font-bold text-green-700" id="countBatita">
+            0
+          </div>
+          <div class="text-sm text-green-600 font-medium">Batita</div>
+        </div>
+        <div
+          class="bg-yellow-100 p-4 rounded-lg text-center border-l-4 border-yellow-500"
+        >
+          <div class="text-2xl font-bold text-yellow-700" id="countLansia">
+            0
+          </div>
+          <div class="text-sm text-yellow-600 font-medium">Lansia</div>
+        </div>
+        <div
+          class="bg-pink-100 p-4 rounded-lg text-center border-l-4 border-pink-500"
+        >
+          <div class="text-2xl font-bold text-pink-700" id="countIbu">0</div>
+          <div class="text-sm text-pink-600 font-medium">Ibu Hamil</div>
+        </div>
+      </div>
+
+      <!-- Tabel -->
+      <table class="w-full text-sm text-left border mb-4" id="dataTable">
+        <thead>
+          <tr class="bg-gray-200 text-xs">
+            <th class="border px-2 py-1">No</th>
+            <th class="border px-2 py-1">Nama</th>
+            <th class="border px-2 py-1">Kategori</th>
+            <th class="border px-2 py-1">Lingkar Lengan</th>
+            <th class="border px-2 py-1">Lingkar Kepala</th>
+            <th class="border px-2 py-1">Tinggi Badan</th>
+            <th class="border px-2 py-1">Berat Badan</th>
+            <th class="border px-2 py-1">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Baris data di-generate di sini -->
+        </tbody>
+      </table>
+
+      <!-- Tombol -->
+      <div class="flex justify-between items-center mb-4">
+        <button
+          onclick="addRow()"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          + Tambah Data
+        </button>
+        <div class="flex space-x-2">
+          <button
+            onclick="clearAllData()"
+            class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+          >
+            Hapus Semua
+          </button>
+          <button
+            onclick="generatePDF()"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Download PDF
+          </button>
+        </div>
+      </div>
+
+      <script>
+        function posyanduApp() {
+          return {
+            menuOpen: false,
+            init() {
+              this.menuOpen = window.innerWidth >= 768;
+              window.addEventListener("resize", () => {
+                this.menuOpen = window.innerWidth >= 768;
+              });
+            },
+          };
         }
 
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .logo i {
-            margin-right: 0.5rem;
-            font-size: 2rem;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #667eea;
-        }
-
-        .admin-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: transform 0.3s ease;
-        }
-
-        .admin-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .hero {
-            text-align: center;
-            padding: 4rem 0;
-            color: white;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        .content-section {
-            background: white;
-            margin: 2rem 0;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
-
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #333;
-            font-size: 2rem;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 2px;
-        }
-
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .schedule-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 1.5rem;
-            border-radius: 15px;
-            color: white;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .schedule-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .schedule-date {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .schedule-time {
-            margin-bottom: 1rem;
-            opacity: 0.9;
-        }
-
-        .schedule-activity {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .schedule-location {
-            opacity: 0.8;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #e1e1e1;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: transform 0.3s ease;
-            margin-right: 1rem;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .admin-panel {
-            display: none;
-            margin-top: 2rem;
-        }
-
-        .admin-panel.active {
-            display: block;
-        }
-
-        .admin-actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .schedule-item {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .schedule-item-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn-small {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2rem;
+        function saveData() {
+          const data = [];
+          document.querySelectorAll("#tableBody tr").forEach((tr) => {
+            const inputs = tr.querySelectorAll("input, select");
+            if (inputs.length === 6) {
+              // Pastikan semua input memiliki nilai, gunakan string kosong jika tidak ada
+              const rowData = {
+                nama: inputs[0].value || "",
+                kategori: inputs[1].value || "Balita",
+                lengan: inputs[2].value || "",
+                kepala: inputs[3].value || "",
+                tb: inputs[4].value || "",
+                bb: inputs[5].value || "",
+              };
+              // Hanya simpan baris yang memiliki setidaknya satu kolom terisi
+              if (
+                rowData.nama ||
+                rowData.kategori ||
+                rowData.lengan ||
+                rowData.kepala ||
+                rowData.tb ||
+                rowData.bb
+              ) {
+                data.push(rowData);
+              }
             }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .admin-actions {
-                justify-content: center;
-            }
-            
-            .schedule-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            /* Checkbox untuk toggle menu */
-#menu-toggle {
-    display: none;
-}
-
-/* Hamburger Menu Styles */
-.hamburger {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    padding: 0.5rem;
-    z-index: 101;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: #333;
-    margin: 3px 0;
-    transition: all 0.3s ease;
-    border-radius: 2px;
-}
-
-#menu-toggle:checked + .hamburger span:nth-child(1) {
-    transform: rotate(-45deg) translate(-5px, 6px);
-}
-
-#menu-toggle:checked + .hamburger span:nth-child(2) {
-    opacity: 0;
-}
-
-#menu-toggle:checked + .hamburger span:nth-child(3) {
-    transform: rotate(45deg) translate(-5px, -6px);
-}
-
-/* Mobile Menu Overlay */
-.mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    z-index: 99;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-#menu-toggle:checked ~ .mobile-menu-overlay {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Nav Links */
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 2rem;
-    transition: all 0.3s ease;
-}
-
-.nav-links a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    padding: 0.5rem 1rem;
-    border-radius: 25px;
-}
-
-.nav-links a:hover {
-    color: #667eea;
-    background: rgba(102, 126, 234, 0.1);
-    transform: translateY(-2px);
-}
-
-/* Mobile Responsive Styles */
-@media (max-width: 768px) {
-    .hamburger {
-        display: flex;
-    }
-    
-    .nav-links {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 70%;
-        height: 100vh;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(20px);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 2rem;
-        transition: all 0.3s ease;
-        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
-        z-index: 100;
-    }
-    
-    #menu-toggle:checked ~ .container .nav-links {
-        right: 0;
-    }
-    
-    .nav-links a {
-        font-size: 1.2rem;
-        padding: 1rem 2rem;
-        width: 100%;
-        text-align: center;
-        border-radius: 0;
-        transition: all 0.3s ease;
-    }
-    
-    .nav-links a:hover {
-        background: rgba(102, 126, 234, 0.1);
-        transform: none;
-    }
-}
-
-@media (max-width: 480px) {
-    .nav-links {
-        width: 85%;
-    }
-}
+          });
+          localStorage.setItem("posyanduData", JSON.stringify(data));
+          updateCounts(data);
+          updateRowNumbers();
         }
-    </style>
-</head>
- <header>
-    <!-- Checkbox untuk toggle menu -->
-    <input type="checkbox" id="menu-toggle" style="display: none;">
-    
-    <!-- Hamburger Menu -->
-    <label for="menu-toggle" class="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-    </label>
-    
-    <div class="container">
-        <nav>
-            <div class="logo">
-                <i class="fas fa-heartbeat"></i>
-                Posyandu Perum Korpri Sambiroto
-            </div>
-            
-            <!-- Desktop Navigation -->
-            <ul class="nav-links">
-                <li><a href="index.html" onclick="document.getElementById('menu-toggle').checked = false;">Beranda</a></li>
-                <li><a href="index.html" onclick="document.getElementById('menu-toggle').checked = false;">Jadwal</a></li>
-                <li><a href="index.html" onclick="document.getElementById('menu-toggle').checked = false;">Tentang</a></li>
-                <li><a href="Inputdata.html" onclick="document.getElementById('menu-toggle').checked = false;">Input Data</a></li>
-            </ul>
-            
-            <!-- Admin Button -->
-            <button class="admin-btn" @click="showAdminLogin = true">
-                <i class="fas fa-user-shield"></i> Admin
-            </button>
-        </nav>
-    </div>
-    
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" onclick="document.getElementById('menu-toggle').checked = false;"></div>
-</header>
 
-  <div class="max-w-10xl mx-auto bg-white p-6 ">
-    <h1 class="text-2xl font-bold mb-10 text-center">Form Posyandu Bantuan Pencatatan</h1>
+        function loadData() {
+          const data = JSON.parse(localStorage.getItem("posyanduData") || "[]");
+          // Kosongkan tabel sebelum memuat data
+          document.getElementById("tableBody").innerHTML = "";
+          // Tambahkan baris untuk setiap data yang tersimpan
+          data.forEach((item) => {
+            addRow(
+              item.nama || "",
+              item.kategori || "Balita",
+              item.lengan || "",
+              item.kepala || "",
+              item.tb || "",
+              item.bb || ""
+            );
+          });
+          updateCounts(data);
+          // Tambah baris kosong jika tidak ada data
+          if (data.length === 0) {
+            addRow();
+          }
+        }
 
-    <!-- Tabel -->
-    <table class="w-full text-sm text-left border mb-4" id="dataTable">
-      <thead>
-        <tr class="bg-gray-200 text-xs">
-          <th class="border px-2 py-1">Nama</th>
-          <th class="border px-2 py-1">Kategori</th>
-          <th class="border px-2 py-1">Lingkar Lengan</th>
-          <th class="border px-2 py-1">Lingkar Kepala</th>
-          <th class="border px-2 py-1">Tinggi Badan</th>
-          <th class="border px-2 py-1">Berat Badan</th>
-          <th class="border px-2 py-1">Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <!-- Baris data di-generate di sini -->
-      </tbody>
-    </table>
+        function addRow(
+          nama = "",
+          kategori = "Balita",
+          lengan = "",
+          kepala = "",
+          tb = "",
+          bb = ""
+        ) {
+          const row = document.createElement("tr");
+          row.className = "hover:bg-gray-50 transition-colors duration-200";
 
-    <!-- Tombol -->
-    <div class="flex justify-between items-center mb-4">
-      <button onclick="addRow()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-        + Tambah Data
-      </button>
-      <button onclick="generatePDF()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Download PDF
-      </button>
-    </div>
+          // Pastikan semua nilai aman untuk ditampilkan
+          row.innerHTML = `
+            <td class="border border-gray-300 px-3 py-2 text-center font-medium text-gray-600 row-number"></td>
+            <td class="border border-gray-300 px-3 py-2">
+              <input value="${nama.replace(/"/g, "&quot;")}" 
+                     class="w-full px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                     placeholder="Masukkan nama lengkap"
+                     oninput="saveData()">
+            </td>
+            <td class="border border-gray-300 px-3 py-2">
+              <select class="w-full px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" onchange="saveData()">
+                <option value="Balita" ${
+                  kategori === "Balita" ? "selected" : ""
+                }>Balita (2-5 tahun)</option>
+                <option value="Batita" ${
+                  kategori === "Batita" ? "selected" : ""
+                }>Batita (0-2 tahun)</option>
+                <option value="Lansia" ${
+                  kategori === "Lansia" ? "selected" : ""
+                }>Lansia (≥60 tahun)</option>
+                <option value="Ibu Hamil" ${
+                  kategori === "Ibu Hamil" ? "selected" : ""
+                }>Ibu Hamil</option>
+              </select>
+            </td>
+            <td class="border border-gray-300 px-3 py-2">
+              <input value="${lengan}" 
+                     type="number" 
+                     step="0.1" 
+                     class="w-full px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                     placeholder="cm"
+                     oninput="saveData()">
+            </td>
+            <td class="border border-gray-300 px-3 py-2">
+              <input value="${kepala}" 
+                     type="number" 
+                     step="0.1" 
+                     class="w-full px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                     placeholder="cm"
+                     oninput="saveData()">
+            </td>
+            <td class="border border-gray-300 px-3 py-2">
+              <input value="${tb}" 
+                     type="number" 
+                     step="0.1" 
+                     class="w-full px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                     placeholder="cm"
+                     oninput="saveData()">
+            </td>
+            <td class="border border-gray-300 px-3 py-2">
+              <input value="${bb}" 
+                     type="number" 
+                     step="0.1" 
+                     class="w-full px-2 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" 
+                     placeholder="kg"
+                     oninput="saveData()">
+            </td>
+            <td class="border border-gray-300 px-3 py-2 text-center">
+              <button onclick="removeRow(this)" 
+                      class="text-red-600 hover:text-red-800 hover:bg-red-50 px-2 py-1 rounded transition-colors duration-200">
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+            </td>
+          `;
 
-    <!-- Statistik -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 text-center">
-      <div class="bg-blue-100 p-4 rounded">Balita: <span id="countBalita" class="font-bold">0</span></div>
-      <div class="bg-green-100 p-4 rounded">Batita: <span id="countBatita" class="font-bold">0</span></div>
-      <div class="bg-yellow-100 p-4 rounded">Lansia: <span id="countLansia" class="font-bold">0</span></div>
-      <div class="bg-pink-100 p-4 rounded">Ibu Hamil: <span id="countIbu" class="font-bold">0</span></div>
-    </div>
-  </div>
+          document.getElementById("tableBody").appendChild(row);
+          updateRowNumbers();
+        }
 
-  <script>
-    function saveToLocalStorage() {
-      const data = [];
-      document.querySelectorAll("#tableBody tr").forEach(tr => {
-        const inputs = tr.querySelectorAll("input, select");
-        if (inputs.length === 6) {
-          data.push({
-            nama: inputs[0].value,
-            kategori: inputs[1].value,
-            lengan: inputs[2].value,
-            kepala: inputs[3].value,
-            tb: inputs[4].value,
-            bb: inputs[5].value
+        function removeRow(button) {
+          if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+            button.closest("tr").remove();
+            saveData();
+          }
+        }
+
+        function clearAllData() {
+          if (
+            confirm(
+              "Apakah Anda yakin ingin menghapus semua data? Tindakan ini tidak dapat dibatalkan."
+            )
+          ) {
+            document.getElementById("tableBody").innerHTML = "";
+            localStorage.removeItem("posyanduData");
+            updateCounts([]);
+            addRow();
+          }
+        }
+
+        function updateRowNumbers() {
+          document.querySelectorAll("#tableBody tr").forEach((tr, index) => {
+            const numberCell = tr.querySelector(".row-number");
+            if (numberCell) {
+              numberCell.textContent = index + 1;
+            }
           });
         }
-      });
-      localStorage.setItem("formData", JSON.stringify(data));
-      updateCounts(data);
-    }
 
-    function loadFromLocalStorage() {
-      const data = JSON.parse(localStorage.getItem("formData")) || [];
-      data.forEach(item => addRow(item.nama, item.kategori, item.lengan, item.kepala, item.tb, item.bb));
-      updateCounts(data);
-    }
+        function updateCounts(data) {
+          let balita = 0,
+            batita = 0,
+            lansia = 0,
+            ibu = 0;
+          data.forEach((item) => {
+            if (item.kategori === "Balita") balita++;
+            else if (item.kategori === "Batita") batita++;
+            else if (item.kategori === "Lansia") lansia++;
+            else if (item.kategori === "Ibu Hamil") ibu++;
+          });
 
-    function addRow(nama = "", kategori = "Balita", lengan = "", kepala = "", tb = "", bb = "") {
-      const row = document.createElement("tr");
+          document.getElementById("countBalita").textContent = balita;
+          document.getElementById("countBatita").textContent = batita;
+          document.getElementById("countLansia").textContent = lansia;
+          document.getElementById("countIbu").textContent = ibu;
+        }
 
-      row.innerHTML = `
-        <td class="border px-2 py-1"><input value="${nama}" class="w-full px-1 py-1 border rounded text-sm" oninput="saveToLocalStorage()"></td>
-        <td class="border px-2 py-1">
-          <select class="w-full px-1 py-1 border rounded text-sm" onchange="saveToLocalStorage()">
-            <option ${kategori === "Balita" ? "selected" : ""}>Balita</option>
-            <option ${kategori === "Batita" ? "selected" : ""}>Batita</option>
-            <option ${kategori === "Lansia" ? "selected" : ""}>Lansia</option>
-            <option ${kategori === "Ibu Hamil" ? "selected" : ""}>Ibu Hamil</option>
-          </select>
-        </td>
-        <td class="border px-2 py-1"><input value="${lengan}" class="w-full px-1 py-1 border rounded text-sm" oninput="saveToLocalStorage()"></td>
-        <td class="border px-2 py-1"><input value="${kepala}" class="w-full px-1 py-1 border rounded text-sm" oninput="saveToLocalStorage()"></td>
-        <td class="border px-2 py-1"><input value="${tb}" class="w-full px-1 py-1 border rounded text-sm" oninput="saveToLocalStorage()"></td>
-        <td class="border px-2 py-1"><input value="${bb}" class="w-full px-1 py-1 border rounded text-sm" oninput="saveToLocalStorage()"></td>
-        <td class="border px-2 py-1 text-center">
-          <button onclick="removeRow(this)" class="text-red-600 hover:underline text-xs">Hapus</button>
-        </td>
-      `;
+        function generatePDF() {
+          const rows = document.querySelectorAll("#tableBody tr");
+          if (rows.length === 0) {
+            alert("Tidak ada data untuk diekspor!");
+            return;
+          }
 
-      document.getElementById("tableBody").appendChild(row);
-      saveToLocalStorage();
-    }
+          const doc = new jsPDF({ orientation: "landscape" });
 
-    function removeRow(button) {
-      button.closest("tr").remove();
-      saveToLocalStorage();
-    }
+          const today = new Date();
+          const dateStr = today.toLocaleDateString("id-ID", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
 
-    function updateCounts(data) {
-      let balita = 0, batita = 0, lansia = 0, ibu = 0;
-      data.forEach(item => {
-        if (item.kategori === "Balita") balita++;
-        else if (item.kategori === "Batita") batita++;
-        else if (item.kategori === "Lansia") lansia++;
-        else if (item.kategori === "Ibu Hamil") ibu++;
-      });
-      document.getElementById("countBalita").textContent = balita;
-      document.getElementById("countBatita").textContent = batita;
-      document.getElementById("countLansia").textContent = lansia;
-      document.getElementById("countIbu").textContent = ibu;
-    }
+          const headers = [
+            [
+              "No",
+              "Nama",
+              "Kategori",
+              "L. Lengan (cm)",
+              "L. Kepala (cm)",
+              "TB (cm)",
+              "BB (kg)",
+            ],
+          ];
 
-    function generatePDF() {
-  const doc = new jsPDF({ orientation: "landscape" });
-  doc.setFontSize(12);
-  doc.text("Data Posyandu", 14, 15);
+          const tableRows = [];
+          let balita = 0,
+            batita = 0,
+            lansia = 0,
+            ibu = 0;
 
-  // Header tabel
-  const headers = [
-    ["No", "Nama", "Kategori", "L. Lengan", "L. Kepala", "TB", "BB"]
-  ];
+          rows.forEach((tr, i) => {
+            const inputs = tr.querySelectorAll("input, select");
+            if (inputs.length === 6) {
+              const kategori = inputs[1].value;
+              if (kategori === "Balita") balita++;
+              else if (kategori === "Batita") batita++;
+              else if (kategori === "Lansia") lansia++;
+              else if (kategori === "Ibu Hamil") ibu++;
 
-  const rows = [];
-  let balita = 0, batita = 0, lansia = 0, ibu = 0;
+              tableRows.push([
+                i + 1,
+                inputs[0].value || "-",
+                kategori,
+                inputs[2].value || "-",
+                inputs[3].value || "-",
+                inputs[4].value || "-",
+                inputs[5].value || "-",
+              ]);
+            }
+          });
 
-  document.querySelectorAll("#tableBody tr").forEach((tr, i) => {
-    const inputs = tr.querySelectorAll("input, select");
-    const kategori = inputs[1].value;
-    if (kategori === "Balita") balita++;
-    else if (kategori === "Batita") batita++;
-    else if (kategori === "Lansia") lansia++;
-    else if (kategori === "Ibu Hamil") ibu++;
+          // Tabel data
+          doc.autoTable({
+            startY: 35,
+            head: headers,
+            body: tableRows,
+            styles: {
+              fontSize: 9,
+              cellPadding: 2,
+            },
+            headStyles: {
+              fillColor: [66, 139, 202],
+              textColor: [255, 255, 255],
+              fontStyle: "bold",
+            },
+            alternateRowStyles: {
+              fillColor: [245, 245, 245],
+            },
+            columnStyles: {
+              0: { halign: "center", cellWidth: 15 },
+              1: { cellWidth: 50 },
+              2: { halign: "center", cellWidth: 25 },
+              3: { halign: "center", cellWidth: 25 },
+              4: { halign: "center", cellWidth: 25 },
+              5: { halign: "center", cellWidth: 20 },
+              6: { halign: "center", cellWidth: 20 },
+            },
+            margin: { top: 35, bottom: 60 },
+            pageBreak: "auto",
+            didDrawPage: function (data) {
+              // Tambahkan header di setiap halaman
+              doc.setFontSize(16);
+              doc.setFont(undefined, "bold");
+              doc.text("DATA POSYANDU PERUM KORPRI SAMBIROTO", 140, 20, {
+                align: "center",
+              });
 
-    rows.push([
-      i + 1,
-      inputs[0].value,
-      kategori,
-      inputs[2].value,
-      inputs[3].value,
-      inputs[4].value,
-      inputs[5].value
-    ]);
-  });
+              doc.setFontSize(10);
+              doc.setFont(undefined, "normal");
+              doc.text(`Tanggal: ${dateStr}`, 140, 28, { align: "center" });
+            },
+          });
 
-  doc.autoTable({
-    startY: 20,
-    head: headers,
-    body: rows,
-    styles: {
-      fontSize: 10,
-      cellPadding: 3
-    },
-    headStyles: {
-      fillColor: [100, 149, 237]
-    }
-  });
+          // Periksa apakah ada cukup ruang untuk rekapitulasi
+          let finalY = doc.lastAutoTable.finalY + 15;
+          const pageHeight = doc.internal.pageSize.height;
+          if (finalY + 60 > pageHeight) {
+            doc.addPage();
+            finalY = 20;
+            // Tambahkan header lagi di halaman baru
+            doc.setFontSize(16);
+            doc.setFont(undefined, "bold");
+            doc.text("DATA POSYANDU PERUM KORPRI SAMBIROTO", 140, 20, {
+              align: "center",
+            });
+            doc.setFontSize(10);
+            doc.setFont(undefined, "normal");
+            doc.text(`Tanggal: ${dateStr}`, 140, 28, { align: "center" });
+          }
 
-  // Tambahkan ringkasan total
-  const finalY = doc.lastAutoTable.finalY + 10;
-  doc.setFontSize(11);
-  doc.text("Total Kategori:", 14, finalY);
-  doc.text(`Balita: ${balita}`, 14, finalY + 6);
-  doc.text(`Batita: ${batita}`, 14, finalY + 12);
-  doc.text(`Lansia: ${lansia}`, 14, finalY + 18);
-  doc.text(`Ibu Hamil: ${ibu}`, 14, finalY + 24);
+          // Statistik
+          doc.setFontSize(12);
+          doc.setFont(undefined, "bold");
+          doc.text("REKAPITULASI DATA:", 20, finalY);
 
-  const today = new Date();
-  const dateStr = today.toISOString().split("T")[0];
-  doc.save(`data_posyandu_${dateStr}.pdf`);
+          doc.setFontSize(10);
+          doc.setFont(undefined, "normal");
+          doc.text(`• Balita (2-5 tahun): ${balita} orang`, 20, finalY + 8);
+          doc.text(`• Batita (0-2 tahun): ${batita} orang`, 20, finalY + 16);
+          doc.text(`• Lansia (>60 tahun): ${lansia} orang`, 20, finalY + 24);
+          doc.text(`• Ibu Hamil: ${ibu} orang`, 20, finalY + 32);
 
-}
+          doc.setFont(undefined, "bold");
+          doc.text(
+            `Total: ${balita + batita + lansia + ibu} orang`,
+            20,
+            finalY + 44
+          );
 
+          // Footer
+          doc.setFontSize(8);
+          doc.setFont(undefined, "italic");
+          doc.text(
+            "Dokumen ini dibuat secara otomatis oleh Sistem Posyandu",
+            20,
+            finalY + 60
+          );
 
-    window.onload = () => {
-      loadFromLocalStorage();
-      if (document.querySelectorAll("#tableBody tr").length === 0) {
-        addRow();
-      }
-    };
-  </script>
-</body>
+          const filename = `data-posyandu-${today
+            .toLocaleDateString("id-ID")
+            .replace(/\//g, "-")}.pdf`;
+          doc.save(filename);
+        }
+
+        // Inisialisasi saat halaman dimuat
+        window.onload = () => {
+          loadData();
+        };
+      </script>
+    </div>
+  </body>
 </html>
