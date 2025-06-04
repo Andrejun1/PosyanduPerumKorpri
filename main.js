@@ -15,6 +15,8 @@
                 adminPassword: '',
                 loggingIn: false,
                 saving: false,
+                menuOpen: false,
+                menuOpen: window.innerWidth >= 768,
                 alert: {
                     show: false,
                     message: '',
